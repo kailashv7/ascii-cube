@@ -15,9 +15,16 @@ float horizontalOffset;
 
 void getTerminalSize() {
     struct winsize ws;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-    width = ws.ws_col;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+        width = 80;   // fallback if ioctl fails
+        height = 80;
+        return;
+    }
+    width  = ws.ws_col;
     height = ws.ws_row;
+
+    if (width  > 80) width  = 80;
+    if (height > 80) height = 80;
 }
 
 /* 3D rotation matrices, multiplied out for a point (i, j, k). */
